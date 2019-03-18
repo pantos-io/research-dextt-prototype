@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 library Cryptography {
     bytes constant SIG_PREFIX = "\x19Ethereum Signed Message:\n32";
 
-    function alphaData(address from, address to, uint256 value, uint t0, uint t1) public pure returns (bytes32) {
+    function alphaData(address from, address to, uint256 value, uint256 t0, uint256 t1) public pure returns (bytes32) {
         return keccak256(abi.encodePacked("a", from, to, value, t0, t1));
     }
 

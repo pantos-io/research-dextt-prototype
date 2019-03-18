@@ -12,30 +12,30 @@ contract PBT is Ownable {
     mapping(bytes32 => address) internal alphaFrom;
     mapping(bytes32 => address) internal alphaTo;
     mapping(bytes32 => uint256) internal alphaValue;
-    mapping(bytes32 => uint) internal alphaT0;
-    mapping(bytes32 => uint) internal alphaT1;
+    mapping(bytes32 => uint256) internal alphaT0;
+    mapping(bytes32 => uint256) internal alphaT1;
 
     mapping(bytes32 => address) internal contestWinner;
     mapping(bytes32 => bytes32) internal contestSignature;
 
     mapping(address => bool) internal senderInvalid;
-    mapping(address => uint) internal vetoT1;
+    mapping(address => uint256) internal vetoT1;
     mapping(address => address) internal vetoWinner;
     mapping(address => bytes32) internal vetoSignature;
     mapping(address => bool) internal vetoFinalized;
 
-    uint constant WITNESS_REWARD = 1;
+    uint256 constant WITNESS_REWARD = 1;
 
     event Minted(address addr, uint256 value);
-    event TransferInitiated(address from, address to, uint256 value, uint t0, uint t1, bytes alpha);
-    event ContestStarted(address from, address to, uint256 value, uint t0, uint t1, bytes alpha, bytes beta);
-    event TransferFinalized(address from, address to, uint256 value, uint t0, uint t1, address witness);
+    event TransferInitiated(address from, address to, uint256 value, uint256 t0, uint256 t1, bytes alpha);
+    event ContestStarted(address from, address to, uint256 value, uint256 t0, uint256 t1, bytes alpha, bytes beta);
+    event TransferFinalized(address from, address to, uint256 value, uint256 t0, uint256 t1, address witness);
 
-    event ContestPre(address from, address to, uint256 value, uint t0, uint t1, address sender);
-    event ContestBetter(address from, address to, uint256 value, uint t0, uint t1, address sender);
-    event ContestWorse(address from, address to, uint256 value, uint t0, uint t1, address sender);
+    event ContestPre(address from, address to, uint256 value, uint256 t0, uint256 t1, address sender);
+    event ContestBetter(address from, address to, uint256 value, uint256 t0, uint256 t1, address sender);
+    event ContestWorse(address from, address to, uint256 value, uint256 t0, uint256 t1, address sender);
 
-    event VetoStarted(address from, address to, uint256 value, uint t0, uint t1, bytes alpha, bytes beta);
+    event VetoStarted(address from, address to, uint256 value, uint256 t0, uint256 t1, bytes alpha, bytes beta);
     event VetoFinalized(address from, address witness);
 
     event ErrorA(string message, address sender);
@@ -51,8 +51,8 @@ contract PBT is Ownable {
     }
 
     function mint(address _owner, uint256 value) public onlyOwner {
-        balances[_owner] += value;
-        totalSupply_ += value;
+        balances[_owner].add(value);
+        totalSupply_.add(value);
         emit Minted(_owner, value);
     }
 
@@ -60,7 +60,7 @@ contract PBT is Ownable {
         senderLock[sender] = bytes32(0);
     }
 
-    function verifyPoi(address from, address to, uint256 value, uint t0, uint t1, bytes alpha, bytes beta) internal {
+    function verifyPoi(address from, address to, uint256 value, uint256 t0, uint256 t1, bytes alpha, bytes beta) internal {
         bytes32 alphaData = Cryptography.alphaData(from, to, value, t0, t1);
 
         // if there is any pending tx, just finalize it to resolve avoidable conflicts
@@ -91,10 +91,10 @@ contract PBT is Ownable {
             senderInvalid[from] = true;
             balances[from] = 0;
 
-            uint originalT0 = alphaT0[senderLock[from]];
-            uint originalT1 = alphaT1[senderLock[from]];
+            uint256 originalT0 = alphaT0[senderLock[from]];
+            uint256 originalT1 = alphaT1[senderLock[from]];
 
-            uint maxT1 = originalT1;
+            uint256 maxT1 = originalT1;
             if (t1 > maxT1) maxT1 = t1;
             if (now > maxT1) maxT1 = now;
 
@@ -109,7 +109,7 @@ contract PBT is Ownable {
         require(condition);
     }
 
-    function initiate(address to, uint256 value, uint t0, uint t1, bytes alpha) public {
+    function initiate(address to, uint256 value, uint256 t0, uint256 t1, bytes alpha) public {
         address from = msg.sender;
 
         bytes32 alphaData = Cryptography.alphaData(from, to, value, t0, t1);
@@ -123,7 +123,7 @@ contract PBT is Ownable {
         emit TransferInitiated(from, to, value, t0, t1, alpha);
     }
 
-    function contest(address from, address to, uint256 value, uint t0, uint t1, bytes alpha, bytes beta) public returns (bool) {
+    function contest(address from, address to, uint256 value, uint256 t0, uint256 t1, bytes alpha, bytes beta) public returns (bool) {
         emit ContestPre(from, to, value, t0, t1, msg.sender);
         bytes32 alphaData = Cryptography.alphaData(from, to, value, t0, t1);
         verifyPoi(from, to, value, t0, t1, alpha, beta);
@@ -162,7 +162,7 @@ contract PBT is Ownable {
 
     function finalize(address from) public {
         address winner;
-        uint t1;
+        uint256 t1;
 
         if (!senderInvalid[from]) {
             bytes32 alphaData = senderLock[from];
@@ -173,7 +173,7 @@ contract PBT is Ownable {
 
                 address to = alphaTo[alphaData];
                 uint256 value = alphaValue[alphaData];
-                uint rawValue = value.sub(WITNESS_REWARD);
+                uint256 rawValue = value.sub(WITNESS_REWARD);
 
                 balances[from] = balances[from].sub(value);
                 balances[to] = balances[to].add(rawValue);
@@ -198,11 +198,11 @@ contract PBT is Ownable {
         }
     }
 
-    function lockStatus(address from) public view returns (uint) {
+    function lockStatus(address from) public view returns (uint256) {
         return alphaT1[senderLock[from]];
     }
 
-    function vetoStatus(address from) public view returns (uint) {
+    function vetoStatus(address from) public view returns (uint256) {
         return vetoT1[from];
     }
 
@@ -210,7 +210,7 @@ contract PBT is Ownable {
         return senderInvalid[from];
     }
 
-    function getAlphaData(address from, address to, uint256 value, uint t0, uint t1) public pure returns (bytes32) {
+    function getAlphaData(address from, address to, uint256 value, uint256 t0, uint256 t1) public pure returns (bytes32) {
         return Cryptography.alphaData(from, to, value, t0, t1);
     }
 

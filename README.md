@@ -18,7 +18,7 @@ Cross-blockchain token transfers, as provided by DeXTT, are in contrast to atomi
 
 DeXTT is needed as a special transfer protocol because direct blockchain-to-blockchain communication is not possible using practical means. We describe this in detail in the [cross-blockchain proof problem (TAST White Paper II)](http://dsg.tuwien.ac.at/staff/mborkowski/pub/tast/tast-white-paper-2.pdf), where we present the lemma of rooted blockchains.
 
-This reference implementation of DeXTT is written in Solidity, the smart contract language of Ethereum, to demonstrate the DeXTT protocol. However, its concepts are not limited to Solidity or the Ethereum blockchain. We use the [Truffle Suite](https://truffleframework.com/) for the development, building, testing, and deployment of the smart contracts.
+This reference implementation of DeXTT is written in Solidity, the smart contract language of Ethereum, to demonstrate the DeXTT protocol. However, its concepts are not limited to Solidity or the Ethereum blockchain. We use the [Truffle Suite](https://truffleframework.com/) for the development, building, testing, and deployment of the smart contracts. The [OpenZeppelin](https://openzeppelin.org/) library is used (developed and tested using version 1.12.0).
 
 The DeXTT protocol specifies how the balances of a cross-blockchain currency are synchronized between all blockchains participating in the protocol (referred to as the the *blockchain ecosystem*), keeping the balances consistent after transfers. For this, we use techniques described in our previous white papers, such as [claim-first transactions (TAST White Paper II)](http://dsg.tuwien.ac.at/staff/mborkowski/pub/tast/tast-white-paper-2.pdf) or [deterministic witnesses (TAST White Paper III)](http://dsg.tuwien.ac.at/staff/mborkowski/pub/tast/tast-white-paper-3.pdf). We show how these techniques are used in DeXTT below.
 
@@ -165,5 +165,7 @@ This initial reference implementation serves as an example on how DeXTT transact
 Therefore, the purpose of this work is to showcase a smart contract implementation of the DeXTT protocol, to publish the implementation used in the evaluation (which will be provided in the paper currently under review), and to foster discussion within the community.
 
 # Acknowledgments
+
+The development of this software has been made significantly easier and more fun thanks to the [OpenZeppelin](https://openzeppelin.org/) library.
 
 The TAST research project is conducted within [Pantos](https://pantos.io/).
